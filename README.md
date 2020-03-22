@@ -1,2 +1,2 @@
 # Reinforcement Learning
-Practicing Reinforcement Learning algorithms
+Practising Reinforcement Learning algorithms
