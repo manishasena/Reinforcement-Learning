@@ -5,6 +5,7 @@
 import numpy as np
 import random
 import pandas as pd
+import matplotlib.pyplot as plt
 
 NO_ROWS = 3
 NO_COLS = 4
@@ -15,12 +16,10 @@ START = [2,0]
 policy = "RANDOM"
 actions = ["left","right","up","down"]
 
-no_episodes = 1000
-
 
 class AGENT:
     
-    def __init__(self, gamma, first_visit, exploring_start):
+    def __init__(self, gamma, first_visit, exploring_start,no_episodes):
         
         #Intialise State Values
         self.Values = np.zeros([NO_ROWS,NO_COLS])
@@ -30,9 +29,12 @@ class AGENT:
         
         #Initialise Returns
         self.Return = AGENT.InitialValues()
-    
         
-        for i in range(100000):
+        self.n = list()
+    
+        self.best_policy = list()
+        
+        for i in range(no_episodes):
             
             #if i%1000 == 0:
             #    print(i)
@@ -55,7 +57,7 @@ class AGENT:
         
         for i in self.ActionValues:
             if ((i != str(WIN_STATE)) and (i != str(LOSE_STATE)) and (i != str(WALL))):
-                print([i,AGENT.Policy(self,i,0)])
+                self.best_policy.append([i,AGENT.Policy(self,i,0)])
         #print(s.ActionValues)
                 
     def InitialValues():
@@ -174,9 +176,13 @@ class AGENT:
         Steps = list()
         R = list()
         
+        n = 0
+        
         while ((self.CurrentState != WIN_STATE) and (self.CurrentState != LOSE_STATE)):
             
-            act = AGENT.Policy(self,self.CurrentState,0.1)
+            n += 1
+            
+            act = AGENT.Policy(self,self.CurrentState,epsilon)
             
             #Same state and action
             Steps.append([self.CurrentState, act])
@@ -184,6 +190,8 @@ class AGENT:
             self.CurrentState = AGENT.Next_State(self,self.CurrentState,act)
             
             R.append(AGENT.Reward(self,self.CurrentState))
+        
+        self.n.append(n)
           
         # Calculate reward for each of the visited states
         
@@ -203,7 +211,21 @@ class AGENT:
     
         
 first_visit = False
-exploring_start = True
+exploring_start = False
 gamma = 0.9
-ag = AGENT(gamma, first_visit, exploring_start)
-print(ag.ActionValues)
+epsilon = 0.1
+
+no_episodes = 10000
+
+no_trials = 5
+n_holder = np.zeros([no_trials,no_episodes])
+
+for j in range(no_trials):
+    
+    ag = AGENT(gamma, first_visit, exploring_start,no_episodes)
+    n_holder[j,:] = ag.n
+
+#Plotting the three
+plt.plot(np.mean(n_holder,axis=0))
+plt.show()
+
