@@ -5,6 +5,7 @@
 import numpy as np
 import random
 import pandas as pd
+import matplotlib.pyplot as plt
 
 NO_ROWS = 3
 NO_COLS = 4
@@ -28,6 +29,9 @@ class AGENT:
         
         #Initialise Returns
         self.Return = AGENT.InitialValues()
+        
+        # Number of steps in epsiode:
+        self.n = list()
     
         
         for i in range(no_episodes):
@@ -144,7 +148,11 @@ class AGENT:
         
         act1 = AGENT.Policy(self,self.CurrentState,epsilon)
         
+        n = 0
+        
         while ((self.CurrentState != WIN_STATE) and (self.CurrentState != LOSE_STATE)):
+            
+            n += 1
             
             #Same state and action
             Steps.append([self.CurrentState, act1])
@@ -154,15 +162,31 @@ class AGENT:
             G.append([AGENT.Reward(self,self.CurrentState),self.CurrentState, act2])
             
             act1 = act2
+            
+        self.n.append(n)
 
                 
         return Steps, G
     
 no_episodes = 100
 first_visit = False
-exploring_start = True
+exploring_start = False
 gamma = 0.9
 epsilon = 0.1
 alpha = 0.1
-ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha)
-print(ag.ActionValues)
+no_trials = 5
+
+# Store number of steps from each trial
+n_holder = np.zeros([no_trials,no_episodes])
+
+for j in range(no_trials):
+    
+    ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha)
+    n_holder[j,:] = ag.n
+
+#Plotting the three
+plt.plot(np.mean(n_holder,axis=0))
+plt.title('SARSA Performance')
+plt.xlabel('Epsiodes')
+plt.ylabel('Steps to reach WIN STATE')
+plt.show()
