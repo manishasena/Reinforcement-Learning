@@ -149,6 +149,10 @@ ag = AGENT(epsilon,iterations, alpha, gamma)
 
 # Plot State Values - aggregated
 plt.plot(ag.StateValues[:,0],ag.StateValues[:,1])
+plt.title('Gradient Monte Carlo with State Aggregation')
+plt.xlabel('State')
+plt.ylabel('State Value')
+plt.ylim(-1,1)
 plt.show()
 
 # Plot mu values (frequency of state occurances)
