@@ -256,6 +256,10 @@ Planning_0 = ag.n
 plt.plot(Planning_50)
 plt.plot(Planning_5)
 plt.plot(Planning_0)
-plt.ylim(13, 800);
-plt.xlim(1, 50);
+plt.xlabel('Epsiodes')
+plt.ylabel('Steps to reach WIN STATE')
+plt.title('DYNA-Q on Complex Grid World')
+plt.ylim(13, 800)
+plt.xlim(1, 50)
+plt.legend(['50 Planning Steps','5 Planning Steps','No planning steps'])
 plt.show()
