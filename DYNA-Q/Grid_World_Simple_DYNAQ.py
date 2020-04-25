@@ -5,6 +5,7 @@
 import numpy as np
 import random
 import pandas as pd
+import matplotlib.pyplot as plt
 
 NO_ROWS = 3
 NO_COLS = 4
@@ -31,6 +32,9 @@ class AGENT:
         
         #Model
         self.Model = {}
+
+        # Number of steps in epsiode:
+        self.n = list()
     
         
         for i in range(no_episodes):
@@ -183,9 +187,13 @@ class AGENT:
         
         Steps = list()
         G = list()
+
+        n = 0
         
         while ((self.CurrentState != WIN_STATE) and (self.CurrentState != LOSE_STATE)):
             
+            n += 1
+
             act = AGENT.Policy(self,self.CurrentState,epsilon)
             
             #Same state and action
@@ -200,16 +208,53 @@ class AGENT:
             # Update Action Values
             self = AGENT.ActionV_update(self, Steps, R, alpha, planning_steps)
 
-                
+        self.n.append(n)
+
         return self
     
 no_episodes = 30
 first_visit = False
-exploring_start = True
+exploring_start = False
 gamma = 0.9
 epsilon = 0.1
 alpha = 0.1
-planning_steps = 10000
-ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha, planning_steps)
-print(ag.ActionValues)
+planning_steps = 50
+no_trials = 5
 
+n_holder = np.zeros([no_trials,no_episodes])
+for j in range(no_trials):
+    
+    ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha, planning_steps)
+    n_holder[j,:] = ag.n
+
+Planning_50 = np.mean(n_holder,axis=0)
+
+planning_steps = 5
+n_holder = np.zeros([no_trials,no_episodes])
+for j in range(no_trials):
+    
+    ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha, planning_steps)
+    n_holder[j,:] = ag.n
+
+Planning_5 = np.mean(n_holder,axis=0)
+
+planning_steps = 0
+n_holder = np.zeros([no_trials,no_episodes])
+for j in range(no_trials):
+    
+    ag = AGENT(gamma, first_visit, exploring_start, no_episodes,epsilon, alpha, planning_steps)
+    n_holder[j,:] = ag.n
+
+Planning_0 = np.mean(n_holder,axis=0)
+
+#Plotting the three
+plt.plot(Planning_50)
+plt.plot(Planning_5)
+plt.plot(Planning_0)
+plt.xlabel('Epsiodes')
+plt.ylabel('Steps to reach WIN STATE')
+plt.title('DYNA-Q on Simple Grid World')
+#plt.ylim(0, 30)
+plt.xlim(1, no_episodes)
+plt.legend(['50 Planning Steps','5 Planning Steps','No planning steps'])
+plt.show()
