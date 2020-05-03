@@ -28,6 +28,24 @@ class AGENT:
                     self.weights[str(i)][param] = torch.randn(1, layers[i+1], device=device, dtype=dtype, requires_grad=True)
 
         # Parameters for Adam optimiser
+        self = AGENT.Adam_Parameters(self,alpha,beta_m,beta_v,epsilon)
+
+        for i in range(iterations):
+
+            if i % 1 == 0:
+                print(i)
+            
+            self.CurrentState = START
+            self = AGENT.Cumulative_Reward(self, gamma,alpha)
+
+        # Final State Values
+        self.Final_State = np.zeros([1,(WIN_STATE-1)])
+        for i in range((WIN_STATE-1)):
+            self.Final_State[0,i] = AGENT.Value_Prediction(self,i+1)
+
+    
+    def Adam_Parameters(self,alpha,beta_m,beta_v,epsilon):
+
         self.step_size = alpha
         self.beta_m = beta_m
         self.beta_v = beta_v
@@ -47,19 +65,7 @@ class AGENT:
         self.beta_m_product = self.beta_m
         self.beta_v_product = self.beta_v
 
-        for i in range(iterations):
-
-            if i % 1 == 0:
-                print(i)
-            
-            self.CurrentState = START
-            self = AGENT.Cumulative_Reward(self, gamma,alpha)
-
-        # Final State Values
-        self.Final_State = np.zeros([1,(WIN_STATE-1)])
-        for i in range((WIN_STATE-1)):
-            self.Final_State[0,i] = AGENT.Value_Prediction(self,i+1)
-
+        return self
 
     def one_hot_encoding(state):
         """
@@ -205,7 +211,6 @@ class AGENT:
         while (self.CurrentState != WIN_STATE) and (self.CurrentState != LOSE_STATE):
             
                 previous_state = self.CurrentState
-                self = AGENT.mu_Update(self, previous_state)
                 
                 act, hops = AGENT.Policy(self,epsilon)
                 self = AGENT.Next_State(self,act,hops)
