@@ -20,9 +20,6 @@ class AGENT:
 
     def __init__(self,epsilon, iterations, alpha, gamma, beta_m, beta_v):
 
-           
-        layers = [(WIN_STATE-1), 100,  1]  #N, D_in, H, D_out
-
         self.weights = {}
         for i in range(len(layers)-1):
             self.weights[str(i)] = {}
@@ -107,8 +104,12 @@ class AGENT:
 
     def Value_Prediction(self,s):
 
-        x = AGENT.one_hot_encoding(s)
-        x = torch.tensor((x), dtype=dtype)
+        if layers[0] == 1:
+            x = torch.tensor([[s/(WIN_STATE-1)]], dtype=dtype)
+        else:
+            x = AGENT.one_hot_encoding(s)
+            x = torch.tensor((x), dtype=dtype)
+        
         v_hat = (x.mm(self.weights['0']['W'])+self.weights['0']['b']).clamp(min=0).mm(self.weights['1']['W']) + self.weights['1']['b']
         #v_hat = x.mm(self.weights['0']).clamp(min=0).mm(self.weights['1'])
 
@@ -252,16 +253,19 @@ class AGENT:
         return self
 
 
-iterations = 500
+iterations = 100
 epsilon = 0.0001
 alpha = 0.001
 gamma = 1
 no_trials = 20
 beta_m = 0.9
 beta_v = 0.999
+#layers = [(WIN_STATE-1), 100,  1]  #N, D_in, H, D_out
+layers = [1, 100,  1]
 
 Final_state = np.zeros([no_trials,(WIN_STATE-1)])
 for i in range(no_trials):
+    print('Trial' + str(i))
     ag = AGENT(epsilon,iterations, alpha, gamma,beta_m, beta_v)
     Final_state[i,:] = ag.Final_State
 
