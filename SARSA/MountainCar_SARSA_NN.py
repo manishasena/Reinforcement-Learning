@@ -41,7 +41,7 @@ class Car:
             # Visualise q-values of each state, using max action
             if k%100 == 0:
                 plt.plot(self.TD_error)
-                plt.ylim(-200,200)
+                plt.ylim(-5,5)
                 plt.show()
 
                 plt.plot(self.final_position)
@@ -85,7 +85,7 @@ class Car:
                 for param in ["W","b"]:
                     if param == "W":
                         #self.weights[act][i][param] = torch.zeros(layers[i],layers[i+1], device=device, dtype = dtype, requires_grad=True)
-                        self.weights[act][i][param] = torch.randn(layers[i],layers[i+1], device=device, dtype = dtype, requires_grad=True)
+                        self.weights[act][i][param] = torch.rand(layers[i],layers[i+1], device=device, dtype = dtype, requires_grad=True)
                     elif param == "b":
                         #self.weights[i][param] = torch.zeros(1,layers[i+1], device=device, dtype = dtype, requires_grad=True)
                         self.weights[act][i][param] = torch.randn(1,layers[i+1], device=device, dtype = dtype, requires_grad=True)
@@ -156,8 +156,9 @@ class Car:
         for i in range(len(self.layers)-1):
             x = (x.mm(self.weights[act][i]["W"])+self.weights[act][i]['b'])
             #x = x.mm(self.weights[act][i]["W"])
-            #x = x.clamp(min=0)
             #x = torch.sigmoid(x)
+            x = x.clamp(max=0) #ReLU
+            
             
         q_val = x
 
@@ -257,7 +258,7 @@ class Car:
         self.CurrentAction = act
 
         t = 0
-        while (observation[0] < 0.5) and (t<200): #not done: 
+        while (observation[0] < 0.5) and (t<600): #not done: 
             
             t += 1
             
@@ -292,7 +293,7 @@ class Car:
 no_epsiodes = 5000
 epsilon = 0.3 #0.8 #0.0001
 min_epsilon = 0
-alpha = 0.001 #0.001
+alpha = 0.01 #0.001
 gamma = 0.90
 
 no_trials = 1
@@ -300,7 +301,7 @@ beta_m = 0.8
 beta_v = 0.9
 #layers = [(WIN_STATE-1), 100,  1]  #N, D_in, H, D_out
 #layers = [3, 1000,  1]
-layers = [2, 200, 200, 1]
+layers = [2, 10, 20, 10, 1]
 
 
 ag = Car(no_epsiodes,layers,alpha,gamma,beta_m,beta_v,epsilon,min_epsilon)
